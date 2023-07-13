@@ -19,11 +19,21 @@
 #define CURRENT 1
 #define END 2
 
+#define MAX_FD 50
+
+/////////////////////////////////////////////////////////////////////////////////////
+//  Super Block
+/////////////////////////////////////////////////////////////////////////////////////
+
 typedef struct superblock
 {
     int TotalInodes;
     int FreeInode;
 }SUPERBLOCK, *PSUPERBLOCK;
+
+/////////////////////////////////////////////////////////////////////////////////////
+//  Information Node
+/////////////////////////////////////////////////////////////////////////////////////
 
 typedef struct inode
 {
@@ -39,6 +49,10 @@ typedef struct inode
     struct inode * next;
 }INODE, *PINODE, **PPINODE;
 
+/////////////////////////////////////////////////////////////////////////////////////
+//  File Table
+/////////////////////////////////////////////////////////////////////////////////////
+
 typedef struct filetable
 {
     int readoffset;
@@ -48,14 +62,30 @@ typedef struct filetable
     PINODE ptrinode;
 }FILETABLE, *PFILETABLE;
 
+/////////////////////////////////////////////////////////////////////////////////////
+//  User File Descriptor Table
+/////////////////////////////////////////////////////////////////////////////////////
+
 typedef struct ufdt
 {
     PFILETABLE ptrfiletable;
 }UFDT;
 
-UFDT UFDTArr[5];           //  Global Variables
-SUPERBLOCK SUPERBLOCKobj;  //  Global Variables
-PINODE head = NULL;         //  Global Variables
+UFDT UFDTArr[MAX_FD];           //  Global Variables
+SUPERBLOCK SUPERBLOCKobj;       //  Global Variables
+PINODE head = NULL;             //  Global Variables
+
+//////////////////////////////////////////////////////////////////
+//
+//  Funtion Name:   man
+//  Input       :   string
+//  Ouput       :   void
+//  Description :   It provides information and syntax of commands
+//  Author      :   Shivanand Aabasaheb Karape
+//  Date        :   12/07/2023
+//  Update Date :   
+//
+//////////////////////////////////////////////////////////////////
 
 void man(char* name)//60
 {
@@ -127,6 +157,18 @@ void man(char* name)//60
     }
 }
 
+//////////////////////////////////////////////////////////////////
+//
+//  Funtion Name:   DisplayHelp
+//  Input       :   void
+//  Ouput       :   void
+//  Description :   It provides short information about commands
+//  Author      :   Shivanand Aabasaheb Karape
+//  Date        :   12/07/2023
+//  Update Date :   
+//
+//////////////////////////////////////////////////////////////////
+
 void DisplayHelp()
 {
     printf("ls       : To list out all files\n");
@@ -142,6 +184,19 @@ void DisplayHelp()
     printf("truncate : To Remove all data from file\n");
     printf("rm       : To Delete the file\n");
 }
+
+//////////////////////////////////////////////////////////////////
+//
+//  Funtion Name:   Get_Inode
+//  Input       :   string
+//  Ouput       :   pointer to struct inode
+//  Description :   It finds inode related with file name
+//              :   It return address of inode
+//  Author      :   Shivanand Aabasaheb Karape
+//  Date        :   12/07/2023
+//  Update Date :   
+//
+//////////////////////////////////////////////////////////////////
 
 PINODE Get_Inode(char* name)
 {
@@ -160,11 +215,23 @@ PINODE Get_Inode(char* name)
     return temp;    
 }
 
+//////////////////////////////////////////////////////////////////
+//
+//  Funtion Name:   GetFDFromName
+//  Input       :   string
+//  Ouput       :   Integer
+//  Description :   It finds inode related with file name
+//  Author      :   Shivanand Aabasaheb Karape
+//  Date        :   12/07/2023
+//  Update Date :   
+//
+//////////////////////////////////////////////////////////////////
+
 int GetFDFromName(char* name)//146
 {
     int i = 0;
 
-    while(i < 50)
+    while(i < MAX_FD)
     {
         if(UFDTArr[i].ptrfiletable != NULL)
             if(strcmp((UFDTArr[i].ptrfiletable->ptrinode->FileName), name) == 0)
@@ -172,9 +239,21 @@ int GetFDFromName(char* name)//146
         i++;
     }
 
-    if(i == 50)     return -1;
+    if(i == MAX_FD)     return -1;
     else            return i;
 }
+
+//////////////////////////////////////////////////////////////////
+//
+//  Funtion Name:   CreateDILB
+//  Input       :   void
+//  Ouput       :   void
+//  Description :   It creates Linked List of inodes on RAM
+//  Author      :   Shivanand Aabasaheb Karape
+//  Date        :   12/07/2023
+//  Update Date :   
+//
+//////////////////////////////////////////////////////////////////
 
 void CreateDILB()
 {
@@ -210,6 +289,18 @@ void CreateDILB()
     }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//  Funtion Name:   InitialiseSuperBlock
+//  Input       :   void
+//  Ouput       :   void
+//  Description :   It create superbloack object to hold total & free count of inodes
+//  Author      :   Shivanand Aabasaheb Karape
+//  Date        :   12/07/2023
+//  Update Date :   
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
 void InitialiseSuperBlock()
 {
     int i = 0;
@@ -221,6 +312,19 @@ void InitialiseSuperBlock()
     SUPERBLOCKobj.TotalInodes = MAXINODE;
     SUPERBLOCKobj.FreeInode = MAXINODE;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//  Funtion Name:   CreateFile
+//  Input       :   String , Integer
+//  Ouput       :   Integer
+//  Description :   It create file, Initialise filetable and inode
+//              :   It return error if any
+//  Author      :   Shivanand Aabasaheb Karape
+//  Date        :   12/07/2023
+//  Update Date :   
+//
+/////////////////////////////////////////////////////////////////////////////////////
 
 int CreateFile(char* name, int permission)
 {
@@ -244,7 +348,7 @@ int CreateFile(char* name, int permission)
         temp = temp->next;
     }
 
-    while(fd < 50)
+    while(fd < MAX_FD)
     {
         if(UFDTArr[fd].ptrfiletable == NULL)
             break;
@@ -272,6 +376,19 @@ int CreateFile(char* name, int permission)
     return fd;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//  Funtion Name:   rm_File
+//  Input       :   string
+//  Ouput       :   Integer
+//  Description :   It deallocated memory of Buffer, File table
+//              :   It returns error if file not available (optional)
+//  Author      :   Shivanand Aabasaheb Karape
+//  Date        :   12/07/2023
+//  Update Date :   
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
 int rm_File(char* name)
 {
     int fd = 0;
@@ -284,13 +401,27 @@ int rm_File(char* name)
     if(UFDTArr[fd].ptrfiletable->ptrinode->LinkCount == 0)
     {
         UFDTArr[fd].ptrfiletable->ptrinode->FileType = 0;
-        // free(UFDTArr[fd].ptrfiletable->ptrinode->Buffer);
+        free(UFDTArr[fd].ptrfiletable->ptrinode->Buffer);
         free(UFDTArr[fd].ptrfiletable);
     }
     UFDTArr[fd].ptrfiletable = NULL;
     (SUPERBLOCKobj.FreeInode)++;
     return 0;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//  Funtion Name:   ReadFile
+//  Input       :   Integer, Integer, String
+//  Ouput       :   Integer
+//  Description :   It loads specified number characters from corrosponding file 
+//              :   Buffer into user defined String.
+//              :   It return error if any
+//  Author      :   Shivanand Aabasaheb Karape
+//  Date        :   12/07/2023
+//  Update Date :   
+//
+/////////////////////////////////////////////////////////////////////////////////////
 
 int ReadFile(int fd, char* arr, int isize)
 {
@@ -321,6 +452,20 @@ int ReadFile(int fd, char* arr, int isize)
     return isize;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//  Funtion Name:   WriteFile
+//  Input       :   Integer, Integer, String
+//  Ouput       :   Integer
+//  Description :   This function transfers specified number of characters from user 
+//              :   string to file Buffer
+//              :   It return error if any
+//  Author      :   Shivanand Aabasaheb Karape
+//  Date        :   12/07/2023
+//  Update Date :   
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
 int WriteFile(int fd, char* arr, int isize)
 {
     if(((UFDTArr[fd].ptrfiletable->mode) != WRITE) && ((UFDTArr[fd].ptrfiletable->ptrinode->permission) != READ+WRITE))
@@ -340,6 +485,19 @@ int WriteFile(int fd, char* arr, int isize)
     return isize;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//  Funtion Name:   OpenFile
+//  Input       :   String, Integer
+//  Ouput       :   Integer
+//  Description :   It opens specified file by file name and related permission. 
+//              :   It return error if any
+//  Author      :   Shivanand Aabasaheb Karape
+//  Date        :   12/07/2023
+//  Update Date :   
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
 int OpenFile(char* name, int mode)
 {
     int fd = 0;
@@ -353,7 +511,7 @@ int OpenFile(char* name, int mode)
     if (temp->permission < mode)
         return -3;
     
-    while(fd < 50)
+    while(fd < MAX_FD)
     {
         if(UFDTArr[fd].ptrfiletable == NULL)
             break;
@@ -382,6 +540,18 @@ int OpenFile(char* name, int mode)
     return fd;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//  Funtion Name:   CloseFileByName
+//  Input       :   Integer
+//  Ouput       :   Void
+//  Description :   It is overloaded function, which uses File Descriptor to close file
+//  Author      :   Shivanand Aabasaheb Karape
+//  Date        :   12/07/2023
+//  Update Date :   
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
 void CloseFileByName(int fd)
 {
     UFDTArr[fd].ptrfiletable->readoffset = 0;
@@ -389,23 +559,48 @@ void CloseFileByName(int fd)
     (UFDTArr[fd].ptrfiletable->ptrinode->ReferenceCount)--;   
 }
 
-int CloseFileByName(char* name)//402
-{
-    int i = 0; 
-    i = GetFDFromName(name);
-    if(i == -1) return -1;
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//  Funtion Name:   CloseFileByName
+//  Input       :   String
+//  Ouput       :   Integer
+//  Description :   It is overloaded function, which uses File name to close file
+//              :   It return error if file is not available
+//  Author      :   Shivanand Aabasaheb Karape
+//  Date        :   12/07/2023
+//  Update Date :   
+//
+/////////////////////////////////////////////////////////////////////////////////////
 
-    UFDTArr[i].ptrfiletable->readoffset = 0;
-    UFDTArr[i].ptrfiletable->writeoffset = 0;
-    (UFDTArr[i].ptrfiletable->ptrinode->ReferenceCount)--;
+int CloseFileByName(char* name)
+{
+    int fd = 0; 
+    fd = GetFDFromName(name);
+    if(fd == -1) return -1;
+
+    UFDTArr[fd].ptrfiletable->readoffset = 0;
+    UFDTArr[fd].ptrfiletable->writeoffset = 0;
+    (UFDTArr[fd].ptrfiletable->ptrinode->ReferenceCount)--;
 
     return 0;
 }
 
-void CloseAllFile()//416
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//  Funtion Name:   CloseAllFile
+//  Input       :   Integer
+//  Ouput       :   Void
+//  Description :   It closes every opened file by reseting its parameters.
+//  Author      :   Shivanand Aabasaheb Karape
+//  Date        :   12/07/2023
+//  Update Date :   
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
+void CloseAllFile()
 {
     int i = 0;
-    while(i < 50)
+    while(i < MAX_FD)
     {
         if(UFDTArr[i].ptrfiletable != NULL)
         {
@@ -418,7 +613,20 @@ void CloseAllFile()//416
     }
 }
 
-int LseekFile(int fd, int size, int from)//432
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//  Funtion Name:   LseekFile
+//  Input       :   Integer, Integer, Integer
+//  Ouput       :   Integer
+//  Description :   It reposition the read and write cursor in file
+//              :   It return error if any
+//  Author      :   Shivanand Aabasaheb Karape
+//  Date        :   12/07/2023
+//  Update Date :   
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
+int LseekFile(int fd, int size, int from)
 {
     if((fd < 0) || (from > 2))  return -1;
     if(UFDTArr[fd].ptrfiletable == NULL) return -1;
@@ -481,6 +689,18 @@ int LseekFile(int fd, int size, int from)//432
     return 0;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//  Funtion Name:   ls_file
+//  Input       :   void
+//  Ouput       :   Void
+//  Description :   It provide information of all created/available file in system
+//  Author      :   Shivanand Aabasaheb Karape
+//  Date        :   12/07/2023
+//  Update Date :   
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
 void ls_file()
 {
     int i = 0;
@@ -505,7 +725,20 @@ void ls_file()
     printf("------------------------------------------------------------\n");
 }
 
-int fstat_file(int fd)//509
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//  Funtion Name:   fstat_file
+//  Input       :   Integer
+//  Ouput       :   Integer
+//  Description :   It provide file information based on file descriptor number
+//              :   It return error if any
+//  Author      :   Shivanand Aabasaheb Karape
+//  Date        :   12/07/2023
+//  Update Date :   
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
+int fstat_file(int fd)
 {
     PINODE temp = head;
     int i = 0; 
@@ -535,6 +768,19 @@ int fstat_file(int fd)//509
 
     return 0;   
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//  Funtion Name:   stat_file
+//  Input       :   String
+//  Ouput       :   Integer
+//  Description :   It display file information related to file name.
+//              :   It return error if any.
+//  Author      :   Shivanand Aabasaheb Karape
+//  Date        :   12/07/2023
+//  Update Date :   
+//
+/////////////////////////////////////////////////////////////////////////////////////
 
 int stat_file(char* name)
 {
@@ -571,6 +817,19 @@ int stat_file(char* name)
     return 0;   
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//  Funtion Name:   truncate_File
+//  Input       :   String
+//  Ouput       :   Integer
+//  Description :   It erase file data by reseting character count
+//              :   It return error if file not available.
+//  Author      :   Shivanand Aabasaheb Karape
+//  Date        :   12/07/2023
+//  Update Date :   
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
 int truncate_File(char* name)
 {
     int fd = GetFDFromName(name);
@@ -583,14 +842,16 @@ int truncate_File(char* name)
     return 0;
 }
 
-///////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+//  Entry Point Function
+/////////////////////////////////////////////////////////////////////////////////////
 int main()
 {
     char* ptr = NULL;
     int ret = 0, fd = 0, count = 0;
     char command[4][80], str[80], arr[1024];
 
-// oxillary data initialisation
+    // auxillary data initialisation
     InitialiseSuperBlock(); 
     CreateDILB();
 
