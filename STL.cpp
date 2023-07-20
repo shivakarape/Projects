@@ -2,13 +2,36 @@
 //    Customised Template Library - (for Primitive data types)
 //    
 //      contains functions + classes
-//    - 4 Linked Lists
+//    - 4 Linked Lists, Stack, Queue
 //    - Array Algorithms : Searching , Sorting ,Arithmetic operations
 //
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 #include<iostream>
 using namespace std;
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+// Class of SuperClass
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+
+class SuperClass
+{
+    public:
+        int iCount;
+
+        SuperClass()
+        {
+            iCount = 0;
+        }
+
+        int Count()
+        {
+            return iCount;
+        }
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -44,16 +67,14 @@ struct NodeD
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-class SinglyLL
+class SinglyLL : public  SuperClass
 {
 	public:
 		struct NodeS<T> *first;
-		int iCount;
 
     SinglyLL();
     ~SinglyLL();
     void Display();
-    int Count();
 
     void InsertFirst(T);
     void InsertLast(T);
@@ -68,7 +89,6 @@ template <class T>
 SinglyLL<T>::SinglyLL()
 {
     first = NULL;
-    iCount = 0;
 }
 
 template <class T>
@@ -97,12 +117,6 @@ void SinglyLL<T>::Display()
         temp = temp -> next;
     }
     cout<<"NULL"<<"\n";
-}
-
-template <class T> 
-int SinglyLL<T>::Count()
-{
-    return iCount;
 }
 
 template <class T>
@@ -274,17 +288,16 @@ void SinglyLL<T>::DeleteAtPos(int ipos)
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-class SinglyCL
+class SinglyCL : public SuperClass
 {
 	public:
 		struct NodeS<T> *first;
         struct NodeS<T> *last;
-		int iCount;
 
     SinglyCL();
     ~SinglyCL();
     void Display();
-    int Count();
+     
 
     void InsertFirst(T);
     void InsertLast(T);
@@ -300,7 +313,6 @@ SinglyCL<T>::SinglyCL()
 {
     first = NULL;
     last = NULL;
-    iCount = 0;
 }
 
 template <class T>
@@ -328,11 +340,6 @@ void SinglyCL<T>::Display()
     cout<<"NULL\n";
 }
 
-template <class T>
-int SinglyCL<T>::Count()
-{
-    return iCount;
-}
 
 template <class T>
 void SinglyCL<T>::InsertFirst(T no)
@@ -500,16 +507,15 @@ void SinglyCL<T>::DeleteAtPos(int ipos)
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-class DoublyLL
+class DoublyLL : public  SuperClass
 {
 	public:
 		struct NodeD<T> *first;
-		int iCount;
 
     DoublyLL();
     ~DoublyLL();
     void Display();
-    int Count();
+     
 
     void InsertFirst(T);
     void InsertLast(T);
@@ -524,7 +530,6 @@ template <class T>
 DoublyLL<T>:: DoublyLL()
 {
     first = NULL;
-    iCount = 0;
 }
 
 template <class T>
@@ -554,12 +559,6 @@ void DoublyLL<T>:: Display()
         temp = temp->next;
     }
     cout<<"NULL\n";
-}
-
-template <class T>
-int DoublyLL<T>:: Count()
-{
-    return iCount;
 }
 
 template <class T>
@@ -734,17 +733,16 @@ void DoublyLL<T>:: DeleteAtPos(int ipos)
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-class DoublyCL
+class DoublyCL : public  SuperClass
 {
 	public:
 		struct NodeD<T> *first;
         struct NodeD<T> *last;
-		int iCount;
 
     DoublyCL();
     ~DoublyCL();
     void Display();
-    int Count();
+     
 
     void InsertFirst(T);
     void InsertLast(T);
@@ -760,7 +758,6 @@ DoublyCL<T>::DoublyCL()
 {
     first = NULL;
     last = NULL;
-    iCount = 0;
 }
 
 template <class T>
@@ -790,12 +787,6 @@ void DoublyCL<T>::Display()
         temp = temp -> next;
     }
     cout<<"NULL"<<"\n";
-}
-
-template <class T> 
-int DoublyCL<T>::Count()
-{
-    return iCount;
 }
 
 template <class T>
@@ -960,11 +951,213 @@ void DoublyCL<T>::DeleteAtPos(int ipos)
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-// Class of generic data type Array
+// Class of Stack
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
+class Stack : public  SuperClass
+{
+    private:
+        struct NodeS<T> * first;
+
+    public:
+        Stack();
+        void Push(T no);      // InsertLast
+        T Pop();              // DleteLast
+        void Display();
+         
+};
+
+template <class T>
+Stack<T>:: Stack()
+{
+    first = NULL;
+}
+
+template <class T>
+void Stack<T>::Push(T no)        // InsertLast
+{
+    NodeS<T> * newn = new NodeS(no);
+
+    newn->data = no;
+    newn->next = NULL;    
+
+    if(first == NULL)
+    {
+        first = newn;
+    }
+    else
+    {
+        NodeS<T> * temp = first;
+
+        while(temp->next != NULL)
+        {
+            temp = temp->next;
+        }
+        temp->next = newn;
+    }
+    iCount++;
+} 
+
+template <class T>
+T Stack<T>::Pop()        // DeleteLast
+{
+    T Value;
+
+    if(iCount == 0)
+    {
+        cout<<"Stack is empty\n";
+        return -1;
+    }
+    else if(iCount == 1)
+    {
+        Value = first -> data;
+        delete first;
+        first = NULL;
+    }
+    else
+    {
+        NodeS<T> * temp = first;
+
+        while(temp->next->next != NULL)
+        {
+            temp = temp -> next;
+        }
+
+        Value = temp->next->data;
+        delete temp->next;
+        temp->next = NULL;
+    }
+
+    iCount--;
+
+    return Value;
+}              
+
+template <class T>
+void Stack<T>::Display()
+{
+    if(first == NULL)
+    {
+        cout<<"Nothing to display as Stack is empty\n";
+        return;
+    }
+    
+    cout<<"Elements of stack are : \n";
+
+    NodeS<T> * temp = first;
+
+    for(int icnt = 1; icnt <= iCount; icnt++)
+    {
+        cout<<temp->data<<"\n";
+        temp = temp -> next;
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+// Class of Queue
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+template <class T>
+class Queue : public  SuperClass
+{
+    private:
+        struct NodeS<T> * first;
+
+    public:
+        Queue();
+        void Enqueue(int no);      // InsertLast
+        int Dequeue();              // DleteFirst
+        void Display();
+};
+
+template <class T>
+Queue<T>:: Queue()
+{
+    first = NULL;
+}
+
+template <class T>
+void Queue<T>::Enqueue(int no)        // InsertLast
+{
+    NodeS<T> * newn = new NodeS<T>(no);
+
+    if(first == NULL)
+    {
+        first = newn;
+    }
+    else
+    {
+        NodeS temp = first;
+
+        while(temp->next != NULL)
+        {
+            temp = temp->next;
+        }
+        temp->next = newn;
+    }
+    iCount++;
+} 
+
+template <class T>
+int Queue<T>::Dequeue()        // DeleteFirst
+{
+    int Value = 0;
+
+    if(iCount == 0)
+    {
+        cout<<"Queue is empty\n";
+        return -1;
+    }
+    else if(iCount == 1)
+    {
+        Value = first -> data;
+        delete first;
+        first = NULL;
+    }
+    else
+    {
+        Value = first -> data;
+        NodeS<T> * temp = first;
+        first = first -> next;
+        delete temp;
+    }
+
+    iCount--;
+
+    return Value;
+}              
+
+template <class T>
+void Queue<T>::Display()
+{
+    if(first == NULL)
+    {
+        cout<<"Nothing to display as Queue is empty\n";
+        return;
+    }
+    
+    cout<<"Elements of Queue are : \n";
+
+    NodeS<T> * temp = first;
+
+    for(int icnt = 1; icnt <= iCount; icnt++)
+    {
+        cout<<temp->data<<"\n";
+        temp = temp -> next;
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+// Class of generic data type Array
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+template <class T> 
 class ArrayX
 {
     public:
@@ -1528,8 +1721,11 @@ void ArrayX<T>:: InsertionSort(bool order)
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Entry Point Function
 ///////////////////////////////////////////////////////////////////////////////////////////
-
-
+/*
+int main()
+{
+    return 0;
+}
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 /*
