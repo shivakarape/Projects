@@ -857,17 +857,27 @@ void DoublyCL<T>::InsertAtPos(T no, int ipos)
     }
     else
     {
-         NodeD<T> *temp = first;
-         NodeD<T> *newn = new  NodeD<T>;
+        NodeD<T> *temp = first;
+        NodeD<T> *newn = new  NodeD<T>;
 
         newn->data = no;
         newn->next = NULL;
         newn->prev = NULL;
 
+        if(ipos < (iCount/2))
         for(int i = 1; i < ipos-1 ; i++)
         {
             temp = temp->next;
         }
+        else
+        {
+            temp = last;
+            for(int i = iCount; i > ipos-1 ; i--)
+            {
+                temp = temp->prev;
+            }
+        }
+        
         newn->next = temp->next;
         newn->prev = temp;
         temp->next->prev = newn;
@@ -935,12 +945,22 @@ void DoublyCL<T>::DeleteAtPos(int ipos)
     }
     else
     {   
-        NodeD<T> * temp = first;
-
+        NodeD<T> *temp = first;
+        
+        if(ipos < (iCount/2))
         for(int i = 1; i < ipos-1 ; i++)
         {
             temp = temp->next;
         }
+        else
+        {
+            temp = last;
+            for(int i = iCount; i > ipos-1 ; i--)
+            {
+                temp = temp->prev;
+            }
+        }
+
         temp->next = temp->next->next;
         delete temp->next->prev;
         temp->next->prev = temp;
@@ -976,7 +996,7 @@ Stack<T>:: Stack()
 }
 
 template <class T>
-void Stack<T>::Push(T no)        // InsertLast
+void Stack<T>::Push(T no)        // InsertFirst : Last in
 {
     NodeS<T> * newn = new NodeS(no);
 
@@ -989,19 +1009,14 @@ void Stack<T>::Push(T no)        // InsertLast
     }
     else
     {
-        NodeS<T> * temp = first;
-
-        while(temp->next != NULL)
-        {
-            temp = temp->next;
-        }
-        temp->next = newn;
+        newn->next = first;
+        first = newn;
     }
     iCount++;
 } 
 
 template <class T>
-T Stack<T>::Pop()        // DeleteLast
+T Stack<T>::Pop()        // DeleteFirst : First Out
 {
     T Value;
 
@@ -1020,14 +1035,10 @@ T Stack<T>::Pop()        // DeleteLast
     {
         NodeS<T> * temp = first;
 
-        while(temp->next->next != NULL)
-        {
-            temp = temp -> next;
-        }
-
-        Value = temp->next->data;
-        delete temp->next;
-        temp->next = NULL;
+        Value = first->data;
+        first = first->next;
+    
+        delete temp;
     }
 
     iCount--;
@@ -1066,6 +1077,7 @@ class Queue : public  SuperClass
 {
     private:
         struct NodeS<T> * first;
+        struct NodeS<T> * last;
 
     public:
         Queue();
@@ -1078,6 +1090,7 @@ template <class T>
 Queue<T>:: Queue()
 {
     first = NULL;
+    last = NULL;
 }
 
 template <class T>
@@ -1085,19 +1098,16 @@ void Queue<T>::Enqueue(int no)        // InsertLast
 {
     NodeS<T> * newn = new NodeS<T>(no);
 
+    newn->data = no;
+    newn->next = NULL;
+
     if(first == NULL)
     {
         first = newn;
     }
     else
     {
-        NodeS temp = first;
-
-        while(temp->next != NULL)
-        {
-            temp = temp->next;
-        }
-        temp->next = newn;
+        last->next = newn;
     }
     iCount++;
 } 
@@ -1730,6 +1740,11 @@ int main()
 
 /*
     Scope of improvement
-    1.  programmer should restrict Arithmetic operations on characters (by runtime type checking)
+    1. 	we can convert linked list into Array of structure
+    2.	Doubly LLL can have last node pointer for back traversal.
+    3.	Doubly CLL can hanve middle node pointer instead of last node pointer.
+    
+    4.  inset string processing functions.
+
 */
 
